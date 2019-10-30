@@ -37,7 +37,7 @@ __all__ = ['wernet_nilsson', 'baker_hubbard', 'kabsch_sander']
 # Functions
 ##############################################################################
 
-def wernet_nilsson(traj, exclude_water=True, periodic=True, sidechain_only=False):
+def wernet_nilsson(traj, exclude_water=True, periodic=True, sidechain_only=False, atom_indices=None):
     """Identify hydrogen bonds based on cutoffs for the Donor-H...Acceptor
     distance and angle according to the criterion outlined in [1].
     As opposed to Baker-Hubbard, this is a "cone" criterion where the
@@ -125,7 +125,7 @@ def wernet_nilsson(traj, exclude_water=True, periodic=True, sidechain_only=False
 
     # Get the possible donor-hydrogen...acceptor triplets
     bond_triplets = _get_bond_triplets(traj.topology,
-        exclude_water=exclude_water, sidechain_only=sidechain_only)
+        exclude_water=exclude_water, sidechain_only=sidechain_only, atom_indices=atom_indices)
 
     # Compute geometry
     mask, distances, angles = _compute_bounded_geometry(traj, bond_triplets,
@@ -143,7 +143,7 @@ def wernet_nilsson(traj, exclude_water=True, periodic=True, sidechain_only=False
     return [bond_triplets.compress(present, axis=0) for present in presence]
 
 
-def baker_hubbard(traj, freq=0.1, exclude_water=True, periodic=True, sidechain_only=False):
+def baker_hubbard(traj, freq=0.1, exclude_water=True, periodic=True, sidechain_only=False, atom_indices=None):
     """Identify hydrogen bonds based on cutoffs for the Donor-H...Acceptor
     distance and angle.
 
@@ -230,7 +230,7 @@ def baker_hubbard(traj, freq=0.1, exclude_water=True, periodic=True, sidechain_o
 
     # Get the possible donor-hydrogen...acceptor triplets
     bond_triplets = _get_bond_triplets(traj.topology,
-        exclude_water=exclude_water, sidechain_only=sidechain_only)
+        exclude_water=exclude_water, sidechain_only=sidechain_only, atom_indices=atom_indices)
 
     mask, distances, angles = _compute_bounded_geometry(traj, bond_triplets,
         distance_cutoff, [1, 2], [0, 1, 2], freq=freq, periodic=periodic)
@@ -320,8 +320,14 @@ def kabsch_sander(traj):
     return matrices
 
 
-def _get_bond_triplets(topology, exclude_water=True, sidechain_only=False):
+def _get_bond_triplets(topology, exclude_water=True, sidechain_only=False, atom_indices=None):
     def can_participate(atom):
+        #Filter atoms not in atom_indices
+        if atom_indices and atom.index not in atom_indices:
+            return False
+        #Accept if atom_indices is given and atom is in atom_indices
+        elif atom_indices and atom.index in atom_indices:
+            return True
         # Filter waters
         if exclude_water and atom.residue.is_water:
             return False
