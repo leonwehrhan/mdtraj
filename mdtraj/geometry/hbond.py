@@ -63,6 +63,8 @@ def wernet_nilsson(traj, exclude_water=True, periodic=True, sidechain_only=False
         Set to True to calculate displacements and angles across periodic box boundaries.
     sidechain_only : bool, default=False
         Set to True to only consider sidechain-sidechain interactions.
+    atom_indices : aray_like or None, default=None
+        The indices of the atoms considered as possible donors or acceptors. If not supplied, all atoms will be considered.
 
     Returns
     -------
@@ -167,6 +169,8 @@ def baker_hubbard(traj, freq=0.1, exclude_water=True, periodic=True, sidechain_o
         Set to True to calculate displacements and angles across periodic box boundaries.
     sidechain_only : bool, default=False
         Set to True to only consider sidechain-sidechain interactions.
+    atom_indices : aray_like or None, default=None
+        The indices of the atoms considered as possible donors or acceptors. If not supplied, all atoms will be considered.
 
     Returns
     -------
